@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "1052964759011",
+    "firebase_url": "https://beerate-455cf.firebaseio.com",
+    "project_id": "beerate-455cf",
+    "storage_bucket": "beerate-455cf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052964759011:android:5d2cbd0e2063b6b9",
+        "android_client_info": {
+          "package_name": "com.beerate.beerateapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNa8WDiERxovA4RNP_LIGXMN8ok-Vs41Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1052964759011-nlo9hdtotnvfns24o14e5lnidfibh7u5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
