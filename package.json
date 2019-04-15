@@ -24,8 +24,8 @@
   "dependencies": {
     "react": "16.6.3",
     "react-native": "0.58.0-rc.2",
-    "react-native-firebase": "^5.2.0",
-    "react-native-gesture-handler": "^1.1.0",
+    "react-native-firebase": "^5.1.0",
+    "react-native-gesture-handler": "^1.0.5",
     "react-navigation": "^3.5.1"
   }
 }
