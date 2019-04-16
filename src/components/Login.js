@@ -8,12 +8,16 @@ export default class Login extends React.Component {
   state = { email: '', password: '', errorMessage: null }
 
   handleLogin = () => {
-    const { email, pasword } = this.state
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
+    if(this.state.email=='' || this.state.password==''){
+      this.setState({ errorMessage: "Please enter Email and Password" })
+    }
+    else{
+      firebase.auth()
+      .signInWithEmailAndPassword(this.state.email, this.state.password)
       .then(() => this.props.navigation.navigate('Main'))
       .catch(error => this.setState({ errorMessage: error.message }))
+    }
+    
   }
   
   handleFbLogin = () => (
@@ -66,9 +70,10 @@ export default class Login extends React.Component {
           value={this.state.password}
         />
          <TouchableOpacity
-          onPress={() => {
-            this.handleLogin();
-          }}
+         title="Login"
+          onPress={
+            this.handleLogin
+          }
           style={[styles.button]}
         >
           <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
@@ -76,19 +81,23 @@ export default class Login extends React.Component {
           </Text>
         </TouchableOpacity>
         <View style={{
+                flex:1,
+                margin:0,
                 justifyContent: 'center',
                 alignItems: 'center',
+ 
               }}>
           <Image
             resizeMode="contain" 
             source={require('../images/facebook-button.png')} 
             style={[
               {
-                flex:1,
+                
                 width: '80%',
                 height: '80%',
               }
             ]} />
+          
         </View>
         <Text style={{ alignSelf: 'center', color: '#A6A8A9', fontSize: 15 }}>
           Don’t have an account yet ?
