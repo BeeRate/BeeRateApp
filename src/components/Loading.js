@@ -7,7 +7,7 @@ export default class Loading extends React.Component {
   // Checkes if the user is already signed in. if yes go to main if no signup.
     componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
-          this.props.navigation.navigate(user ? 'Main' : 'SignUp')
+          this.props.navigation.navigate(user ? 'Main' : 'Login')
         })
     }
 

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">BeeRateApp</string>
+  <string name="facebook_app_id">327912194746452</string>
+
 </resources>

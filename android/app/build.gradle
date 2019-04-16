@@ -153,9 +153,12 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-fbsdk')
     implementation project(':react-native-gesture-handler')
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
+  implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+
   implementation fileTree(dir: "libs", include: ["*.jar"])
 
 /* ----------------------------
