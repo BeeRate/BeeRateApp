@@ -4,6 +4,10 @@ import firebase from 'react-native-firebase'
 
 export default class SignUp extends React.Component {
   state = { email: '', password: '', errorMessage: null }
+  static navigationOptions = {
+    headerVisible: false,
+
+  };
 handleSignUp = () => {
     firebase
       .auth()

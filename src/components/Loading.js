@@ -3,6 +3,10 @@ import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
 import firebase from 'react-native-firebase'
 
 export default class Loading extends React.Component {
+  static navigationOptions = {
+    headerVisible: false,
+
+  };
 
   // Checkes if the user is already signed in. if yes go to main if no signup.
     componentDidMount() {

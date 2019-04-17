@@ -1,12 +1,16 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View,  TouchableOpacity,  Button ,Image} from 'react-native'
+import { StyleSheet, Text, TextInput, View,  TouchableOpacity ,Image} from 'react-native'
 import firebase from 'react-native-firebase'
+import { SocialIcon,Input,Button } from 'react-native-elements'
 
 var FBLoginButton = require('./FacebookLogin/FBLoginButton');
 
 export default class Login extends React.Component {
   state = { email: '', password: '', errorMessage: null }
+  static navigationOptions = {
+    headerVisible: false,
 
+  };
   handleLogin = () => {
     if(this.state.email=='' || this.state.password==''){
       this.setState({ errorMessage: "Please enter Email and Password" })
@@ -54,51 +58,41 @@ export default class Login extends React.Component {
           <Text style={{ color: 'red' }}>
             {this.state.errorMessage}
           </Text>}
-        <TextInput
-          style={styles.textInput}
+
+          <Input
+          placeholder='Email'
           autoCapitalize="none"
-          placeholder="Email"
+          leftIcon={{ type: 'font-awesome', name: 'user' }}
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
+          />
+          <Input
+          placeholder='Password'
+            leftIcon={{ type: 'font-awesome', name: 'lock' }}
+            onChangeText={password => this.setState({ password })}
+            value={this.state.password}
+            autoCapitalize="none"
+            secureTextEntry
+          />
+      <Button
+  title="Login"
+  onPress={
+    this.handleLogin
+  }
+  buttonStyle={{ color: 'white', fontSize: 20, fontWeight: '600' ,marginTop:19,marginBottom:19}}
+/>
+         
+     
+          <SocialIcon
+          title='Sign In With Facebook'
+          button
+          type='facebook'
         />
-        <TextInput
-          secureTextEntry
-          style={styles.textInput}
-          autoCapitalize="none"
-          placeholder="Password"
-          onChangeText={password => this.setState({ password })}
-          value={this.state.password}
+          <SocialIcon
+          title='Sign In With Google'
+          button
+          type='google-plus-official'
         />
-         <TouchableOpacity
-         title="Login"
-          onPress={
-            this.handleLogin
-          }
-          style={[styles.button]}
-        >
-          <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
-            SIGN IN
-          </Text>
-        </TouchableOpacity>
-        <View style={{
-                flex:1,
-                margin:0,
-                justifyContent: 'center',
-                alignItems: 'center',
- 
-              }}>
-          <Image
-            resizeMode="contain" 
-            source={require('../images/facebook-button.png')} 
-            style={[
-              {
-                
-                width: '80%',
-                height: '80%',
-              }
-            ]} />
-          
-        </View>
         <Text style={{ alignSelf: 'center', color: '#A6A8A9', fontSize: 15 }}>
           Don’t have an account yet ?
         </Text>
