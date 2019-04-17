@@ -18,8 +18,8 @@ export default class MainSearchBar extends React.Component {
         placeholder="Search Beer"
         onChangeText={this.updateSearch}
         value={search}
+        round='true'
       />
     );
   }
 }
-

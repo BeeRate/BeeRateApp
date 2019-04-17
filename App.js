@@ -1,14 +1,17 @@
-import React from 'react'
-import { StyleSheet, Platform, Image, Text, View } from 'react-native'
 import { createSwitchNavigator,createAppContainer,createStackNavigator } from 'react-navigation'
 
 import Loading from './src/components/Loading'
 import SignUp from './src/components/SignUp'
 import Login from './src/components/Login'
 import Main from './src/components/Main'
+import BeersFound from './src/components/BeersFound'
 
 const AppNavigator = createStackNavigator({
-  Main
+  Main,
+  BeersFound
+},
+{
+  headerLayoutPreset: 'center' // default is 'left'
 })
 
 

@@ -1,6 +1,7 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button,Image } from 'react-native'
+import { StyleSheet,  TextInput, View,Image } from 'react-native'
 import firebase from 'react-native-firebase'
+import { Input,Button,Text } from 'react-native-elements'
 
 export default class SignUp extends React.Component {
   state = { email: '', password: '', errorMessage: null }
@@ -18,31 +19,39 @@ handleSignUp = () => {
 render() {
     return (
       <View style={styles.container}>
-        <Text>Sign Up</Text>
+        <Text h1>Sign Up</Text>
         {this.state.errorMessage &&
           <Text style={{ color: 'red' }}>
             {this.state.errorMessage}
           </Text>}
-        <TextInput
+        <Input
           placeholder="Email"
           autoCapitalize="none"
-          style={styles.textInput}
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
         />
-        <TextInput
+        <Input
           secureTextEntry
           placeholder="Password"
           autoCapitalize="none"
-          style={styles.textInput}
           onChangeText={password => this.setState({ password })}
           value={this.state.password}
         />
+        <View style={{margin:10}}>
+        <View style={{margin:10}}>
+
         <Button title="Sign Up" onPress={this.handleSignUp} />
+        </View>
+
+        <View style={{margin:10}}>
+
         <Button
-          title="Already have an account? Login"
+          title="Already have an account?"
           onPress={() => this.props.navigation.navigate('Login')}
         />
+        </View>
+        </View>
+
       </View>
     )
   }
@@ -53,11 +62,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  textInput: {
-    height: 40,
-    width: '90%',
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginTop: 8
-  },
+  
 })
