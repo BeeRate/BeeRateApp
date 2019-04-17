@@ -47,7 +47,7 @@ export default class BeersFound extends React.Component {
       <View>
         {
             this.state.beers.map((b, i) => (
-                
+            
             <ListItem
                 key={i}
                 leftAvatar={{ source: { uri: b.img_url } }}
