@@ -26,18 +26,33 @@ export default class BeersFound extends React.Component {
       };
 
     state = {beers: [] }
-    beerType = this.props.navigation.state.params;
+    beerType = this.props.navigation.getParam('value', '');
+    criteria = this.props.navigation.getParam('criteria','');
 
     componentDidMount(){
-        firebase.firestore().collection('beers').where("type", "==", this.beerType).get().then((querySnapshot)=> {
-            temp=[]
-            querySnapshot.forEach(function(doc) {
-                // doc.data() is never undefined for query doc snapshots
-                temp.push(doc.data())
-            });
-            this.setState({beers:temp})
-
-        }).catch((error)=>alert(error)).then();
+        if(this.criteria=='type'){
+            firebase.firestore().collection('beers').where("type", "==", this.beerType).get().then((querySnapshot)=> {
+                temp=[]
+                querySnapshot.forEach(function(doc) {
+                    // doc.data() is never undefined for query doc snapshots
+                    temp.push(doc.data())
+                });
+                this.setState({beers:temp})
+    
+            }).catch((error)=>alert(error)).then();
+        }
+        else if(this.criteria=='name'){
+            firebase.firestore().collection('beers').where('name', '>=', this.beerType).where('name', '<=', this.beerType).get().then((querySnapshot)=> {
+                temp=[]
+                querySnapshot.forEach(function(doc) {
+                    // doc.data() is never undefined for query doc snapshots
+                    temp.push(doc.data())
+                });
+                this.setState({beers:temp})
+    
+            }).catch((error)=>alert(error)).then();
+        }
+       
 
         
     }
@@ -47,7 +62,6 @@ export default class BeersFound extends React.Component {
       <View>
         {
             this.state.beers.map((b, i) => (
-            
             <ListItem
                 key={i}
                 leftAvatar={{ source: { uri: b.img_url } }}

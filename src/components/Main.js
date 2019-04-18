@@ -29,6 +29,8 @@ export default class Main extends React.Component {
     },
     headerVisible: true,
   };
+
+  //On launching component
   componentDidMount() {
     const { currentUser } = firebase.auth()
     this.setState({ currentUser })
@@ -50,36 +52,64 @@ render() {
     const { search,currentUser } = this.state
 
 return (
-  <View style={{flex:1}}>
-        <View>
-        <SearchBar
+  <View style={{ flex: 1 }}>
+    <View>
+      <SearchBar
         placeholder="Search Beer"
         onChangeText={this.updateSearch}
         value={search}
-        platform='android'
+        platform="android"
       />
-        </View>
-  <View style={{margin:50}}>
-  <Text h1>Browse Beers</Text>
-  <Divider style={{ backgroundColor: 'blue' }} />
-<View style={{margin:30}}>
-<Button onPress={()=>this.props.navigation.navigate('BeersFound','Pale lager')}  style={{width:500,    borderRadius: 10,}} title='Pale lager'></Button>
-</View >
-<View style={{margin:30}}>
-<Button style={{width:70,margin:20}} onPress={()=>this.props.navigation.navigate('BeersFound','Dark lager')}  title='Dark lager'></Button>
-</View>
-<View style={{margin:30}}>
-<Button style={{width:70,margin:20}} onPress={()=>this.props.navigation.navigate('BeersFound','Wheat Beer')}  title='Wheat Beer'></Button>
-</View>
-    
+    </View>
+    <View style={{margin: 30}}>
+      <Button title="Search" onPress={()=>this.props.navigation.navigate("BeersFound", {
+              value:this.state.search,
+              criteria:'name'
+            }
+            )}></Button>
 
-   
-
+    </View>
+    <View style={{ margin: 50 }}>
+      <Text h1>Browse Beers</Text>
+      <Divider style={{ backgroundColor: "blue" }} />
+      <View style={{ margin: 30 }}>
+        <Button
+          onPress={() =>
+            this.props.navigation.navigate("BeersFound", {
+              value:'Pale lager',
+              criteria:'type'
+            }
+            )
+          }
+          title="Pale lager"
+        />
+      </View>
+      <View style={{ margin: 30 }}>
+        <Button
+          style={{ width: 70, margin: 20 }}
+          onPress={() =>
+            this.props.navigation.navigate("BeersFound",{
+              value:"Dark lager",
+              criteria:'type'
+            } )
+          }
+          title="Dark lager"
+        />
+      </View>
+      <View style={{ margin: 30 }}>
+        <Button
+          onPress={() =>
+            this.props.navigation.navigate("BeersFound",{
+              value:"Wheat Beer",
+              criteria:'type'
+            }  )
+          }
+          title="Wheat Beer"
+        />
+      </View>
+    </View>
   </View>
-
-</View>   
-
-    )
+);
   }
 }
 const styles = StyleSheet.create({
