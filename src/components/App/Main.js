@@ -1,9 +1,9 @@
 import React from 'react'
 import { StyleSheet, Platform, Image,  View,Header } from 'react-native'
 import { Icon,SearchBar,Button,Text,Divider } from 'react-native-elements'
+import { LoginManager } from 'react-native-fbsdk';
 
 import firebase from 'react-native-firebase'
-import MainSearchBar from './SearchBar'
 
 
 export default class Main extends React.Component {
@@ -13,9 +13,12 @@ export default class Main extends React.Component {
     title: 'Find Your Beer',
     headerRight:(
       <View style={{margin:15}}>
-      <Icon  name='account-circle' onPress={() => firebase.auth()
+      <Icon  name='account-circle' onPress={() => {
+        LoginManager.logOut;
+        firebase.auth()
         .signOut()
-        .then(() => this.props.navigation.navigate('Login'))} />
+        .then(() => this.props.navigation.navigate('Login'))}
+        } />
         </View>
       
     ),
@@ -35,6 +38,7 @@ export default class Main extends React.Component {
     const { currentUser } = firebase.auth()
     this.setState({ currentUser })
 }
+
 
 handleLogout=()=> {
   currentUser.auth()

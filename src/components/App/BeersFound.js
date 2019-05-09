@@ -2,15 +2,18 @@ import React from 'react'
 import {  View } from 'react-native'
 import firebase from 'react-native-firebase'
 import { ListItem ,Icon,Divider  } from 'react-native-elements'
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
 
 export default class BeersFound extends React.Component {
     static navigationOptions = {
         title: 'Beers',
         headerRight:(
           <View style={{margin:10}}>
-          <Icon  name='account-circle' onPress={() => firebase.auth()
+          <Icon  name='account-circle' onPress={() => {
+            LoginManager.logOut;
+            firebase.auth()
             .signOut()
-            .then(() => this.props.navigation.navigate('Login'))} />
+            .then(() => this.props.navigation.navigate('Login'))}} />
             </View>
           
         ),
@@ -46,15 +49,13 @@ export default class BeersFound extends React.Component {
                 temp=[]
                 querySnapshot.forEach(function(doc) {
                     // doc.data() is never undefined for query doc snapshots
-                    temp.push(doc.data())
+                    temp.push(doc.id,...doc.data())
                 });
                 this.setState({beers:temp})
     
             }).catch((error)=>alert(error)).then();
         }
-       
-
-        
+         
     }
 
   render() {
@@ -67,6 +68,7 @@ export default class BeersFound extends React.Component {
                 leftAvatar={{ source: { uri: b.img_url } }}
                 title={b.name}
                 subtitle={b.type +" "+b.rating}
+                onPress={()=>this.props.navigation.navigate('BeerDetails',b)}
             />
             ))
         }

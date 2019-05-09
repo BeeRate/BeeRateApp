@@ -1,14 +1,16 @@
 import { createSwitchNavigator,createAppContainer,createStackNavigator } from 'react-navigation'
 
-import Loading from './src/components/Loading'
-import SignUp from './src/components/SignUp'
-import Login from './src/components/Login'
-import Main from './src/components/Main'
-import BeersFound from './src/components/BeersFound'
+import Loading from './src/components/Authentication/Loading'
+import SignUp from './src/components/Authentication/SignUp'
+import Login from './src/components/Authentication/Login'
+import Main from './src/components/App/Main'
+import BeersFound from './src/components/App/BeersFound'
 
 const AppNavigator = createStackNavigator({
   Main,
-  BeersFound
+  BeersFound,
+  Profile,
+  BeerDetails
 },
 {
   headerLayoutPreset: 'center' // default is 'left'

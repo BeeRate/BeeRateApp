@@ -11,7 +11,7 @@ import firebase from "react-native-firebase";
 import { SocialIcon, Input, Button } from "react-native-elements";
 import { GoogleSignin } from 'react-native-google-signin';
 
-var loginUtils = require("./Utils/LoginUtils");
+var loginUtils = require("../Utils/LoginUtils");
 
 export default class Login extends React.Component {
   state = {
@@ -34,7 +34,7 @@ export default class Login extends React.Component {
     } else {
       firebase
         .auth()
-        .signInWithEmailAndPassword(this.state.email, this.state.password)
+        .signInWithEmailAndPassword(this.state.email.trim(), this.state.password)
         .then(() => this.props.navigation.navigate("Main"))
         .catch(error =>
           this.setState({
@@ -136,12 +136,12 @@ export default class Login extends React.Component {
 
         {/*Login with Google */}
 
-        <SocialIcon
+        {/* <SocialIcon
           title="Sign In With Google"
           button
           type="google-plus-official"
           onPress={this.handleGoogleLogin}
-        />
+        /> */}
 
         {/*Sign Up */}
 
