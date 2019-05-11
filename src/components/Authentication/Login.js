@@ -80,7 +80,7 @@ export default class Login extends React.Component {
                 justifyContent: "center"
               }
             ]}
-            source={require("../images/logo2.png")}
+            source={require("../../images/logo2.png")}
           />
 
         </View>

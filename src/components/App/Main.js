@@ -1,27 +1,20 @@
 import React from 'react'
 import { StyleSheet, Platform, Image,  View,Header } from 'react-native'
 import { Icon,SearchBar,Button,Text,Divider } from 'react-native-elements'
-import { LoginManager } from 'react-native-fbsdk';
-
 import firebase from 'react-native-firebase'
 
 
 export default class Main extends React.Component {
   state = {search: '', currentUser: null }
 
-  static navigationOptions = {
+  static navigationOptions =({navigation})=>( {
     title: 'Find Your Beer',
-    headerRight:(
-      <View style={{margin:15}}>
-      <Icon  name='account-circle' onPress={() => {
-        LoginManager.logOut;
-        firebase.auth()
-        .signOut()
-        .then(() => this.props.navigation.navigate('Login'))}
-        } />
-        </View>
+    headerRight:
       
-    ),
+      <View style={{margin:15}}>
+      <Icon  name='account-circle' onPress={()=> navigation.navigate("Profile")} />
+        </View>
+    ,
     headerStyle: {
       backgroundColor: '#f4511e',
     },
@@ -31,7 +24,8 @@ export default class Main extends React.Component {
       fontFamily:'roboto'
     },
     headerVisible: true,
-  };
+  });
+
 
   //On launching component
   componentDidMount() {

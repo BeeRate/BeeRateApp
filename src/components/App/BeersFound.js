@@ -1,32 +1,28 @@
 import React from 'react'
-import {  View } from 'react-native'
+import {  View ,ScrollView} from 'react-native'
 import firebase from 'react-native-firebase'
-import { ListItem ,Icon,Divider  } from 'react-native-elements'
+import { ListItem ,Icon,Divider,Rating  } from 'react-native-elements'
 import { AccessToken, LoginManager } from 'react-native-fbsdk';
 
 export default class BeersFound extends React.Component {
-    static navigationOptions = {
-        title: 'Beers',
-        headerRight:(
-          <View style={{margin:10}}>
-          <Icon  name='account-circle' onPress={() => {
-            LoginManager.logOut;
-            firebase.auth()
-            .signOut()
-            .then(() => this.props.navigation.navigate('Login'))}} />
-            </View>
-          
-        ),
-        headerStyle: {
-          backgroundColor: '#f4511e',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-          fontFamily:'roboto'
-        },
-        headerVisible: true,
-      };
+  static navigationOptions =({navigation})=>( {
+    title: 'Find Your Beer',
+    headerRight:
+      
+      <View style={{margin:15}}>
+      <Icon  name='account-circle' onPress={()=> navigation.navigate("Profile")} />
+        </View>
+    ,
+    headerStyle: {
+      backgroundColor: '#f4511e',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      fontFamily:'roboto'
+    },
+    headerVisible: true,
+  });
 
     state = {beers: [] }
     beerType = this.props.navigation.getParam('value', '');
@@ -60,19 +56,26 @@ export default class BeersFound extends React.Component {
 
   render() {
     return (
-      <View>
+      <ScrollView>
         {
             this.state.beers.map((b, i) => (
             <ListItem
                 key={i}
-                leftAvatar={{ source: { uri: b.img_url } }}
+                leftAvatar={{ source: { uri: b.img_url } ,size:80}}
+                rightIcon={<Rating
+                  type='star'
+                  ratingCount={5}
+                  startingValue={b.rating}
+                  imageSize={25}
+                  readonly
+                />}
                 title={b.name}
-                subtitle={b.type +" "+b.rating}
-                onPress={()=>this.props.navigation.navigate('BeerDetails',b)}
+                subtitle={b.type}
+                onPress={()=>this.props.navigation.navigate('BeerDetails',{'beer':b})}
             />
             ))
         }
-      </View>
+      </ScrollView>
     )
   }
 }

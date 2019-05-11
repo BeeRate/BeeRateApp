@@ -5,6 +5,9 @@ import SignUp from './src/components/Authentication/SignUp'
 import Login from './src/components/Authentication/Login'
 import Main from './src/components/App/Main'
 import BeersFound from './src/components/App/BeersFound'
+import Profile from './src/components/App/Profile'
+import BeerDetails from './src/components/App/BeerDetails'
+
 
 const AppNavigator = createStackNavigator({
   Main,
