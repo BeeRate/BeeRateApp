@@ -37,6 +37,7 @@ export default class BeerDetails extends Component {
                   startingValue={this.state.beer.rating}
                   imageSize={25}
                   showRating
+                  readonly
                   fractions={1}
                   style={{ paddingVertical: 10 }}
                   onFinishRating={this.ratingCompleted}
