@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
-import {  View,ScrollView } from 'react-native'
-import { Image,Text,Divider,Rating,Icon } from 'react-native-elements';
+import {  View,ScrollView,ImageBackground,TouchableOpacity} from 'react-native'
+import { Image,Text,Divider,Rating,Icon as Ic } from 'react-native-elements';
+import * as Animatable from 'react-native-animatable' 
+import Icon from 'react-native-vector-icons/AntDesign'
+import algoliasearch from 'algoliasearch'
+import firebase from 'react-native-firebase'
 
 export default class BeerDetails extends Component {
     static navigationOptions = ({navigation})=>( {
@@ -8,17 +12,66 @@ export default class BeerDetails extends Component {
           headerRight:
       
           <View style={{margin:15}}>
-          <Icon  name='account-circle' onPress={()=> navigation.navigate("Profile")} />
+          <Ic  name='account-circle' onPress={()=> navigation.navigate("Profile")} />
             </View>
       });
 
-    state = {beer:{} }
+    state = {beer:{},liked:false ,ratingDisabled:false}
+    client = algoliasearch('8V33FGVG49', '7363107e25d7595aa932b9885bb11ef8');
+    index = this.client.initIndex('beers');
+    indexFavorites = this.client.initIndex('user_favorites');
+    indexRatings = this.client.initIndex('users_rating');
+
 
     componentDidMount(){
+      const { currentUser } = firebase.auth()
+      this.setState({ currentUser })
         this.setState({beer:this.props.navigation.getParam('beer','')});
+        this.indexRatings.search({query:currentUser+' '+this.state.beer},
+        (err, { hits } = {}) => {
+          if (err) throw err;
+        
+          if(hits.length>0){
+            this.setState({ratingDisabled:true});
+          }
+        })
+    }
+    colors = {
+      transparent: 'transparent',
+      white: '#fff',
+      heartColor: '#e92f3c',
+      textPrimary: '#515151',
+      black: '#000', 
     }
 
+    ratingCompleted=(newRating)=>{
+      this.state.beer.rating_count+=1;
+      oldRating=this.state.beer.rating;
+      this.state.beer.rating = (this.state.beer.rating + newRating)/this.state.beer.rating_count;
+      this.index.partialUpdateObject(this.state.beer, (err, content)=>{  console.log(content);
+      obj={
+          userId:this.state.currentUser.uid,
+          beer:this.state.beer
+        }
+      this.indexRatings.addObject(obj, (err, content)=>{console.log(content)})
+
+      })
+    }
+
+    handleOnPressLike=()=>{
+      this.setState({liked:!this.state.liked})
+      obj={
+        userId:this.state.currentUser.uid,
+        beer:this.state.beer
+      }
+      if(!this.state.liked)
+        this.indexFavorites.addObject(obj, (err, content)=>{console.log(content)});
+      else
+        this.indexFavorites.deleteBy({filters:'userId:'+obj.userId})
+    }
+    
   render() {
+    AnimatedIcon = Animatable.createAnimatableComponent(Icon)
 
     return (
       <ScrollView >
@@ -27,17 +80,33 @@ export default class BeerDetails extends Component {
         alignItems: 'center',
       }}>
         <Text h2 style={{textAlign:'center', alignSelf:'center'}}> {this.state.beer.name} </Text>
-        <Image
+        <ImageBackground
             source={{ uri: this.state.beer.img_url }}
             style={{ width: 200, height: 300,justifyContent: 'center',
-            alignItems: 'center' , borderRadius:1}}            />
+            alignItems: 'flex-end' , borderRadius:1}}            >
+
+<TouchableOpacity
+            activeOpacity={1}
+            onPress={this.handleOnPressLike}
+            style = {{position: 'absolute',
+            bottom:0}}
+          >
+            <AnimatedIcon
+              ref={this.handleSmallAnimatedIconRef}
+              name={this.state.liked ? 'heart' : 'hearto'}
+              color={this.state.liked ? this.colors.heartColor : this.colors.textPrimary}
+              size={18}
+            />
+          </TouchableOpacity>
+              
+        </ImageBackground>
             <Rating
                   type='star'
                   ratingCount={5}
                   startingValue={this.state.beer.rating}
                   imageSize={25}
                   showRating
-                  readonly
+                  readonly={this.state.ratingDisabled}
                   fractions={1}
                   style={{ paddingVertical: 10 }}
                   onFinishRating={this.ratingCompleted}
@@ -62,15 +131,6 @@ export default class BeerDetails extends Component {
 
           </View>
 
-
-      </View>
-      <Divider style={{height:2 , margin:1}}></Divider>
-
-      <View style={{
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-      }}>
-              <Text h4 style={{textAlign:'center', alignSelf:'center' ,margin:1}}> Reviews </Text>
 
       </View>
       </ScrollView>
