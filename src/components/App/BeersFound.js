@@ -1,8 +1,8 @@
 import React from 'react'
-import {  View ,ScrollView} from 'react-native'
+import {  View ,ScrollView,Text} from 'react-native'
 import firebase from 'react-native-firebase'
-import { ListItem ,Icon,Divider,Rating  } from 'react-native-elements'
-import { AccessToken, LoginManager } from 'react-native-fbsdk';
+import { ListItem ,Icon,Button,Rating  } from 'react-native-elements'
+import algoliasearch from 'algoliasearch'
 
 export default class BeersFound extends React.Component {
   static navigationOptions =({navigation})=>( {
@@ -23,34 +23,31 @@ export default class BeersFound extends React.Component {
     },
     headerVisible: true,
   });
-
+  state = {beer:{},liked:false ,ratingDisabled:false}
+  client = algoliasearch('8V33FGVG49', '7363107e25d7595aa932b9885bb11ef8');
+  index = this.client.initIndex('beers');
+  
     state = {beers: [] }
     beerType = this.props.navigation.getParam('value', '');
     criteria = this.props.navigation.getParam('criteria','');
 
     componentDidMount(){
-        if(this.criteria=='type'){
-            firebase.firestore().collection('beers').where("type", "==", this.beerType).get().then((querySnapshot)=> {
-                temp=[]
-                querySnapshot.forEach(function(doc) {
-                    // doc.data() is never undefined for query doc snapshots
-                    temp.push(doc.data())
-                });
-                this.setState({beers:temp})
+       // if(this.criteria=='type'){
+          this.index.search( {query:this.beerType}, (err, { hits } = {})=>{
+            this.setState({beers:[...hits]});
+           })
+        // }
+        // else if(this.criteria=='name'){
+        //     firebase.firestore().collection('beers').where('name', '>=', this.beerType).where('name', '<=', this.beerType).get().then((querySnapshot)=> {
+        //         temp=[]
+        //         querySnapshot.forEach(function(doc) {
+        //             // doc.data() is never undefined for query doc snapshots
+        //             temp.push(doc.id,...doc.data())
+        //         });
+        //         this.setState({beers:temp})
     
-            }).catch((error)=>alert(error)).then();
-        }
-        else if(this.criteria=='name'){
-            firebase.firestore().collection('beers').where('name', '>=', this.beerType).where('name', '<=', this.beerType).get().then((querySnapshot)=> {
-                temp=[]
-                querySnapshot.forEach(function(doc) {
-                    // doc.data() is never undefined for query doc snapshots
-                    temp.push(doc.id,...doc.data())
-                });
-                this.setState({beers:temp})
-    
-            }).catch((error)=>alert(error)).then();
-        }
+        //     }).catch((error)=>alert(error)).then();
+        // }
          
     }
 

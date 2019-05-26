@@ -35,6 +35,19 @@ export default class BeerDetails extends Component {
             this.setState({ratingDisabled:true});
           }
         })
+
+        //did user liked beer if true liked=true
+        this.indexFavorites.search({
+          query: currentUser.uid,
+          removeWordsIfNoResults: 'allOptional'
+        }).then((hits, { e } = {})=>{
+          console.log(hits.hits)
+          console.log(hits.hits[0].beer)
+          if(hits.hits.length>0){
+            this.setState({liked:true})
+          }
+          console.log(this.state.beers)
+         })
     }
     colors = {
       transparent: 'transparent',
@@ -67,7 +80,7 @@ export default class BeerDetails extends Component {
       if(!this.state.liked)
         this.indexFavorites.addObject(obj, (err, content)=>{console.log(content)});
       else
-        this.indexFavorites.deleteBy({filters:'userId:'+obj.userId})
+        this.indexFavorites.deleteByQuery({query:obj.userId+' '+obj.beer.objectId})
     }
     
   render() {
@@ -106,7 +119,7 @@ export default class BeerDetails extends Component {
                   startingValue={this.state.beer.rating}
                   imageSize={25}
                   showRating
-                  readonly={this.state.ratingDisabled}
+                  readonly={false}
                   fractions={1}
                   style={{ paddingVertical: 10 }}
                   onFinishRating={this.ratingCompleted}
