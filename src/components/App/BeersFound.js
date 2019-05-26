@@ -32,9 +32,17 @@ export default class BeersFound extends React.Component {
     criteria = this.props.navigation.getParam('criteria','');
 
     componentDidMount(){
+        console.log(this.beerType)
        // if(this.criteria=='type'){
-          this.index.search( {query:this.beerType}, (err, { hits } = {})=>{
-            this.setState({beers:[...hits]});
+         if(this.criteria==='vision'){
+          rmWords='allOptional'
+          }
+           else{
+            rmWords='none'
+           }
+          this.index.search( {query:this.beerType,removeWordsIfNoResults:rmWords}).then( (hits)=>{
+            console.log(hits)
+            this.setState({beers:[...hits.hits]});
            })
         // }
         // else if(this.criteria=='name'){

@@ -7,6 +7,7 @@ import android.util.Log;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.react.ReactApplication;
+import com.RNFetchBlob.RNFetchBlobPackage;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
 import com.imagepicker.ImagePickerPackage;
 import co.apptailor.googlesignin.RNGoogleSigninPackage;
@@ -53,6 +54,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.asList(
         new MainReactPackage(),
+            new RNFetchBlobPackage(),
             new ImagePickerPackage(),
             new RNGoogleSigninPackage(),
             new VectorIconsPackage(),

@@ -13,6 +13,7 @@ import firebase, { imageRef } from "react-native-firebase";
 import BeersList from "./SearchBeerBar";
 import { PermissionsAndroid } from "react-native";
 import ImagePicker from "react-native-image-picker";
+import RNFetchBlob from "rn-fetch-blob"
 import uuid from "uuid";
 
 export default class Main extends React.Component {
@@ -51,30 +52,47 @@ export default class Main extends React.Component {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
     const { currentUser } = firebase.auth();
     this.setState({ currentUser });
-      Blob = RNFetchBlob.polyfill.Blob;
-      fs = RNFetchBlob.fs;
-     window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
-     window.Blob = Blob;
+    console.disableYellowBox = true
+      
   }
 
   uploadImage(uri, mime = "image/jpeg", name) {
     return new Promise((resolve, reject) => {
+      Blob = RNFetchBlob.polyfill.Blob;
+      fs = RNFetchBlob.fs;
+      window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
+     window.Blob = Blob;
+     const Fetch = RNFetchBlob.polyfill.Fetch
+// replace built-in fetch
+window.fetch = new Fetch({
+    // enable this option so that the response data conversion handled automatically
+    auto : true,
+    // when receiving response data, the module will match its Content-Type header
+    // with strings in this array. If it contains any one of string in this array, 
+    // the response body will be considered as binary data and the data will be stored
+    // in file system instead of in memory.
+    // By default, it only store response data to file system when Content-Type 
+    // contains string `application/octet`.
+    binaryContentTypes : [
+        'image/',
+        'video/',
+        'audio/',
+        'foo/',
+    ]
+}).build()
       imgUri = uri;
-      uploadBlob = null;
    
       const { currentUser } = firebase.auth();
-      const imageRef = firebase.storage().ref(`/jobs/${currentUser.uid}`);
-      console.log('1')
-      fs.readFile(uploadUri, "base64")
+      const imageRef = firebase.storage().ref(`/photos/${currentUser.uid}`);
+      console.log(imageRef)
+      fs.readFile(imgUri, "base64")
         .then(data => {
           return Blob.build(data, { type: `${mime};BASE64` });
         })
         .then(blob => {
-          uploadBlob = blob;
-          return imageRef.put(blob, { contentType: mime, name: name });
+          return imageRef.put(uri, { contentType: mime, name: name });
         })
         .then(() => {
-          uploadBlob.close();
           return imageRef.getDownloadURL();
         })
         .then(url => {
@@ -86,13 +104,14 @@ export default class Main extends React.Component {
     });
   }
 
-  submitToGoogle = async () => {
+  submitToGoogle = () => {
     try {
       this.setState({ uploading: true });
       // Launch Camera:
       ImagePicker.launchCamera(options, res => {
         this.setState({ resUri: res.uri });
-        this.uploadImage(res.uri).then((fbres)=>{
+        console.log(res)
+        this.uploadImage(res.path).then((fbres)=>{
           console.log(fbres)
           body = JSON.stringify({
             requests: [
@@ -101,12 +120,13 @@ export default class Main extends React.Component {
                 image: {
                   source: {
                     imageUri:
-                      "https://products1.imgix.drizly.com/ci-heineken-lager-6ea7dedfaaced647.jpeg"
+                      fbres
                   }
                 }
               }
             ]
           });
+          console.log(body)
           fetch(
             "https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCgArqIrc0V0D0iP1DrzdI4Yo_kUwTB3AM",
             {
@@ -124,17 +144,21 @@ export default class Main extends React.Component {
               //   value:res.responses.logoAnnotations[0].description,
               //   criteria:'name'
               // } )
-              res.json().then(json => {
-                console.log(json);
-                if (json.responses.length > 0) {
-                  beerName = json.responses[0].logoAnnotations[0].description;
-                  console.log(beerName);
-                  this.props.navigation.navigate("BeersFound", {
-                    value: beerName,
-                    criteria: "name"
-                  });
-                }
-              });
+              console.log(res)
+              try{
+                res.json().then(json => {
+                  console.log(json);
+                  if (json.responses.length > 0) {
+                    beerName = json.responses[0].logoAnnotations[0].description;
+                    console.log(beerName);
+                    this.props.navigation.navigate("BeersFound", {
+                      value: beerName,
+                      criteria: "vision"
+                    });
+                  }
+                });
+              }
+             catch(e){console.log(e)}
             })
             .catch(err => console.log(err));
         })
