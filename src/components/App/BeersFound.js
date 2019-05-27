@@ -63,6 +63,7 @@ export default class BeersFound extends React.Component {
     return (
       <ScrollView>
         {
+          this.state.beers.length>0 ?
             this.state.beers.map((b, i) => (
             <ListItem
                 key={i}
@@ -78,7 +79,8 @@ export default class BeersFound extends React.Component {
                 subtitle={b.type}
                 onPress={()=>this.props.navigation.navigate('BeerDetails',{'beer':b})}
             />
-            ))
+            )):
+            (<Text>No results found</Text>)
         }
       </ScrollView>
     )

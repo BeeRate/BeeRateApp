@@ -19,13 +19,14 @@ import algoliasearch from "algoliasearch";
 import firebase from "react-native-firebase";
 
 export default class BeerDetails extends Component {
+  //=================== Navigation bar ===================//
   static navigationOptions = ({ navigation }) => ({
     title: "Details",
     headerRight: (
       <View style={{ margin: 15 }}>
         <Ic
-          name="account-circle"
-          onPress={() => navigation.navigate("Profile")}
+          name="home"
+          onPress={() => navigation.navigate("Main")}
         />
       </View>
     )
@@ -40,10 +41,15 @@ export default class BeerDetails extends Component {
     myRating:false
   };
 
+    //=================== Algolia init ===================//
+
+
   client = algoliasearch("8V33FGVG49", "7363107e25d7595aa932b9885bb11ef8");
   index = this.client.initIndex("beers");
   indexFavorites = this.client.initIndex("user_favorites");
   indexRatings = this.client.initIndex("users_rating");
+
+    //=================== Methods ===================//
 
   componentWillUnmount() {
     this.didFocusListener.remove();
@@ -51,7 +57,7 @@ export default class BeerDetails extends Component {
 
   componentDidMount() {
     const { currentUser } = firebase.auth();
-    this.setState({currentUser})
+    this.setState({currentUser,beer: this.props.navigation.getParam("beer", ""),myRating: 0,ratingLoading:true })
     this.didFocusListener = this.props.navigation.addListener(
       "didFocus",
       () => {
@@ -60,19 +66,19 @@ export default class BeerDetails extends Component {
           likeLoading: true,
           detailsLoading: true,
           currentUser,
-          myRating: 0
+          myRating: 0,
         });
         this.indexRatings.search(
           { filters:  '"' +
           this.state.beer.objectID +
-          " " +
+          ' ' +
           this.state.currentUser.uid +
           '"' }).then(
           (hits) => {
-            console.log(hits)
-            if (hits.hits > 0) {
-              this.setState({ myRating: hits[0].rating });
+            if (hits.hits.length > 0) {
+              this.setState({ myRating: hits.hits[0].rating });
             }
+            this.setState({ratingLoading:false});
           }
           );
 
@@ -80,15 +86,9 @@ export default class BeerDetails extends Component {
 
         this.indexFavorites
           .search({
-            query: currentUser.uid + " " + this.state.beer.objectID
+            filters:'"'+this.state.beer.objectID +' '+this.state.currentUser.uid +'"'
           })
-          .then((hits, { e } = {}) => {
-            hits.hits = hits.hits.filter(a => {
-              return (
-                a._highlightResult.userId.matchedWords.length > 0 &&
-                a._highlightResult.beer.objectID.matchedWords.length > 0
-              );
-            });
+          .then((hits,e) => {
             if (hits.hits.length > 0) {
               this.setState({ liked: true });
             } else {
@@ -166,11 +166,10 @@ export default class BeerDetails extends Component {
               _tags: this.state.beer.objectID + " " + this.state.currentUser.uid
             };
             this.indexRatings.addObject(obj, (err, content) => {
-              console.log(content);
             });
           });
         }
-        this.setState({myRating:false})
+        this.setState({myRating:newRating})
       });
   };
 
@@ -248,46 +247,53 @@ export default class BeerDetails extends Component {
               </TouchableOpacity>
             )}
           </ImageBackground>
-          {this.state.myRating===0 &&
-          (<Rating
-            type="star"
-            ratingCount={5}
-            startingValue={this.state.myRating}
-            imageSize={25}
-            showRating
-            style={{ paddingVertical: 10 }}
-            onFinishRating={this.ratingCompleted}
-            defaultRating={0}
-
-          />
-          )}
-        {this.state.myRating!==0 &&
-          (<Rating
-            type="star"
-            ratingCount={5}
-            startingValue={this.state.myRating}
-            imageSize={25}
-            showRating
-            readonly
-            style={{ paddingVertical: 10 }}
-            onFinishRating={this.ratingCompleted}
-            defaultRating={0}
-
-          />
-          )}
-
           <Rating
-            type="star"
+            type="custom"
             ratingCount={5}
             startingValue={this.state.beer.rating}
             imageSize={25}
             showRating
             readonly
             fractions={1}
-            style={{ paddingVertical: 10 }}
             defaultRating={0}
+            ratingColor='red'
+          />
+          <Text style={{marginTop:5,fontSize:30}}>Your rating:</Text>
+          {(!this.state.ratingLoading)?
+          this.state.myRating===0 &&
+          (
+            <View>
+          <Rating
+            type="star"
+            ratingCount={5}
+            startingValue={0}
+            imageSize={25}
+            onFinishRating={this.ratingCompleted}
+            defaultRating={0}
+          />
+          <Text >You did not rate yet</Text>
+          </View>
+          ) ||
+        this.state.myRating!==0 &&
+          (
+          <View>
+          <Rating
+            type="star"
+            ratingCount={5}
+            startingValue={this.state.myRating}
+            imageSize={25}
+            readonly
+            style={{ paddingVertical: 10 }}
 
           />
+                    <Text style={{color:'red'}}>You already rated</Text>
+
+          </View>)
+          
+          :
+          (<ActivityIndicator size="large" />)}
+
+         
         </View>
         <Divider style={{ height: 2, margin: 1 }} />
 

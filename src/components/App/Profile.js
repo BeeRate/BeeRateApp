@@ -47,6 +47,7 @@ export default class Profile extends Component {
     this.didFocusListener = this.props.navigation.addListener(
       "didFocus",
       () => {
+        state = { beers: [] };
         indexFavorites
           .search({
             query: currentUser.uid,
