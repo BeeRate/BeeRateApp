@@ -11,7 +11,8 @@ import {
   Text,
   Divider,
   Rating,
-  Icon as Ic
+  Icon as Ic,
+  Overlay
 } from "react-native-elements";
 import * as Animatable from "react-native-animatable";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -68,6 +69,17 @@ export default class BeerDetails extends Component {
           currentUser,
           myRating: 0,
         });
+
+        //refresh beer
+
+        this.index.search({query:this.state.beer.objectID}).then(
+          (hits)=>{
+            this.setState({beer:hits.hits[0].beer})
+          }
+        )
+
+        //refresh rating
+
         this.indexRatings.search(
           { filters:  '"' +
           this.state.beer.objectID +
@@ -179,7 +191,7 @@ export default class BeerDetails extends Component {
       delete this.state.beer._highlightResult;
     obj = {
       userId: this.state.currentUser.uid,
-      beer: this.state.beer,
+      beer: this.state.beer.objectID,
       _tags: this.state.beer.objectID + " " + this.state.currentUser.uid
     };
     console.log(this.state.beer.objectID + " " + this.state.currentUser.uid);
@@ -248,16 +260,17 @@ export default class BeerDetails extends Component {
             )}
           </ImageBackground>
           <Rating
+            readonly        
             type="custom"
             ratingCount={5}
             startingValue={this.state.beer.rating}
-            imageSize={25}
-            showRating
-            readonly
+            imageSize={25}  
             fractions={1}
-            defaultRating={0}
+            defaultRating={this.state.beer.rating}
             ratingColor='red'
+            style={{marginTop:10}}
           />
+          <Text>Total ratings:{this.state.beer.rating_count}</Text>
           <Text style={{marginTop:5,fontSize:30}}>Your rating:</Text>
           {(!this.state.ratingLoading)?
           this.state.myRating===0 &&
@@ -271,7 +284,7 @@ export default class BeerDetails extends Component {
             onFinishRating={this.ratingCompleted}
             defaultRating={0}
           />
-          <Text >You did not rate yet</Text>
+          <Text >Rate your beer</Text>
           </View>
           ) ||
         this.state.myRating!==0 &&
@@ -286,7 +299,7 @@ export default class BeerDetails extends Component {
             style={{ paddingVertical: 10 }}
 
           />
-                    <Text style={{color:'red'}}>You already rated</Text>
+                    <Text style={{color:'red'}}>Thank you for your rating</Text>
 
           </View>)
           

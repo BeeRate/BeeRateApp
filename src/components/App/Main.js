@@ -6,14 +6,15 @@ import {
   View,
   TouchableOpacity,
   FlatList,
-  Alert
+  Alert,
+  ActivityIndicator
 } from "react-native";
-import { Icon, Button, Text, Divider } from "react-native-elements";
+import { Icon, Button, Text, Overlay } from "react-native-elements";
 import firebase, { imageRef } from "react-native-firebase";
 import BeersList from "./SearchBeerBar";
 import { PermissionsAndroid } from "react-native";
 import ImagePicker from "react-native-image-picker";
-import RNFetchBlob from "rn-fetch-blob"
+import RNFetchBlob from "rn-fetch-blob";
 import uuid from "uuid";
 
 export default class Main extends React.Component {
@@ -52,8 +53,7 @@ export default class Main extends React.Component {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
     const { currentUser } = firebase.auth();
     this.setState({ currentUser });
-    console.disableYellowBox = true
-      
+    console.disableYellowBox = true;
   }
 
   uploadImage(uri, mime = "image/jpeg", name) {
@@ -61,30 +61,25 @@ export default class Main extends React.Component {
       Blob = RNFetchBlob.polyfill.Blob;
       fs = RNFetchBlob.fs;
       window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
-     window.Blob = Blob;
-     const Fetch = RNFetchBlob.polyfill.Fetch
-// replace built-in fetch
-window.fetch = new Fetch({
-    // enable this option so that the response data conversion handled automatically
-    auto : true,
-    // when receiving response data, the module will match its Content-Type header
-    // with strings in this array. If it contains any one of string in this array, 
-    // the response body will be considered as binary data and the data will be stored
-    // in file system instead of in memory.
-    // By default, it only store response data to file system when Content-Type 
-    // contains string `application/octet`.
-    binaryContentTypes : [
-        'image/',
-        'video/',
-        'audio/',
-        'foo/',
-    ]
-}).build()
+      window.Blob = Blob;
+      const Fetch = RNFetchBlob.polyfill.Fetch;
+      // replace built-in fetch
+      window.fetch = new Fetch({
+        // enable this option so that the response data conversion handled automatically
+        auto: true,
+        // when receiving response data, the module will match its Content-Type header
+        // with strings in this array. If it contains any one of string in this array,
+        // the response body will be considered as binary data and the data will be stored
+        // in file system instead of in memory.
+        // By default, it only store response data to file system when Content-Type
+        // contains string `application/octet`.
+        binaryContentTypes: ["image/", "video/", "audio/", "foo/"]
+      }).build();
       imgUri = uri;
-   
+
       const { currentUser } = firebase.auth();
       const imageRef = firebase.storage().ref(`/photos/${currentUser.uid}`);
-      console.log(imageRef)
+      console.log(imageRef);
       fs.readFile(imgUri, "base64")
         .then(data => {
           return Blob.build(data, { type: `${mime};BASE64` });
@@ -106,27 +101,28 @@ window.fetch = new Fetch({
 
   submitToGoogle = () => {
     try {
-      this.setState({ uploading: true });
       // Launch Camera:
       ImagePicker.launchCamera(options, res => {
         this.setState({ resUri: res.uri });
-        console.log(res)
-        this.uploadImage(res.path).then((fbres)=>{
-          console.log(fbres)
+        console.log(res);
+        this.setState({ uploading: true });
+
+        this.uploadImage(res.path).then(fbres => {
+          console.log(fbres);
           body = JSON.stringify({
             requests: [
               {
                 features: [{ type: "LOGO_DETECTION", maxResults: 1 }],
                 image: {
                   source: {
-                    imageUri:
-                      fbres
+                    imageUri: fbres
                   }
                 }
               }
             ]
           });
-          console.log(body)
+          console.log(body);
+
           fetch(
             "https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCgArqIrc0V0D0iP1DrzdI4Yo_kUwTB3AM",
             {
@@ -144,8 +140,8 @@ window.fetch = new Fetch({
               //   value:res.responses.logoAnnotations[0].description,
               //   criteria:'name'
               // } )
-              console.log(res)
-              try{
+              console.log(res);
+              try {
                 res.json().then(json => {
                   console.log(json);
                   if (json.responses.length > 0) {
@@ -156,18 +152,24 @@ window.fetch = new Fetch({
                       criteria: "vision"
                     });
                   }
+                  this.setState({ uploading: false });
+
                 });
+              } catch (e) {
+                console.log(e);
+                this.setState({ uploading: false });
+
               }
-             catch(e){console.log(e)}
             })
-            .catch(err => console.log(err));
-        })
-   
+            .catch(err => {console.log(err);       this.setState({ uploading: false });
+          });
+        });
+
       });
 
       // imguri= this.uploadImage(this.state.resUri,'image/jpeg',response.fileName)
     } catch (error) {
-      console.log(error);
+      this.setState({ uploading: false });
     }
   };
 
@@ -177,6 +179,12 @@ window.fetch = new Fetch({
 
   render() {
     const { search, currentUser, showSearch } = this.state;
+    data = [
+      { value: "Wheat Beer", path: "../../images/wheatBeer.jpg" },
+      { value: "Pale lager", path: "../../images/paleLager.jpg" },
+      { value: "Dark lager", path: "../../images/darkLager.jpg" },
+      { value: "Stout", path: "../../images/stout.jpg" }
+    ];
     options = {
       title: "Select Avatar",
       mediaType: "photo",
@@ -187,10 +195,20 @@ window.fetch = new Fetch({
     };
     return (
       <ScrollView style={{ flex: 1 }}>
+        <Overlay
+          isVisible={this.state.uploading}
+          windowBackgroundColor="rgba(255, 255, 255, .5)"
+          width="auto"
+          height="auto"
+        >
+          <Text>Uploading image</Text>
+          <ActivityIndicator size="large" />
+        </Overlay>
+        
         <View style={{ marginTop: 5 }}>
           <Button
             raised
-            type="outlined"
+            type="outline"
             icon={{
               name: "search",
               size: 10,
@@ -201,7 +219,6 @@ window.fetch = new Fetch({
           />
           {showSearch ? <BeersList navigation={this.props.navigation} /> : null}
         </View>
-
         <View style={{ margin: 50 }}>
           <Text h1>Browse Beers</Text>
           <View>
@@ -233,20 +250,24 @@ window.fetch = new Fetch({
             />
           </View>
         </View>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={this.clickHandler}
-          style={styles.TouchableOpacityStyle}
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
         >
-          <Icon
-            name="camera"
-            size={40}
-            color="#f50"
-            type="evilicon"
-            style={styles.FloatingButtonStyle}
-            onPress={this.submitToGoogle}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={this.clickHandler}
+            style={styles.TouchableOpacityStyle}
+          >
+            <Icon
+              name="camera"
+              size={80}
+              color="#f50"
+              type="evilicon"
+              style={styles.FloatingButtonStyle}
+              onPress={this.submitToGoogle}
+            />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -258,12 +279,6 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   TouchableOpacityStyle: {
-    position: "absolute",
-    width: 50,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    right: 30,
     bottom: 1
   },
 

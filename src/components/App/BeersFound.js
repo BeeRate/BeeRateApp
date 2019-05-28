@@ -1,18 +1,18 @@
 import React from 'react'
 import {  View ,ScrollView,Text} from 'react-native'
 import firebase from 'react-native-firebase'
-import { ListItem ,Icon,Button,Rating  } from 'react-native-elements'
+import { ListItem ,Icon,Overlay,Rating  } from 'react-native-elements'
 import algoliasearch from 'algoliasearch'
 
 export default class BeersFound extends React.Component {
   static navigationOptions =({navigation})=>( {
     title: 'Find Your Beer',
-    headerRight:
+    // headerRight:
       
-      <View style={{margin:15}}>
-      <Icon  name='account-circle' onPress={()=> navigation.navigate("Profile")} />
-        </View>
-    ,
+    //   <View style={{margin:15}}>
+    //   <Icon  name='account-circle' onPress={()=> navigation.navigate("Profile")} />
+    //     </View>
+    // ,
     headerStyle: {
       backgroundColor: '#f4511e',
     },
