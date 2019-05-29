@@ -167,7 +167,7 @@ export default class BeerDetails extends Component {
           this.state.beer.rating_count += 1;
           oldRating = this.state.beer.rating;
           this.state.beer.rating =
-            (this.state.beer.rating + newRating) / this.state.beer.rating_count;
+            ((this.state.beer.rating*(this.state.beer.rating_count-1)) + newRating) / this.state.beer.rating_count;
           this.index.partialUpdateObject(this.state.beer, (err, content) => {
             if (this.state.beer._highlightResult)
               delete this.state.beer._highlightResult;
