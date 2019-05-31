@@ -9,7 +9,7 @@ import {
   Alert,
   ActivityIndicator
 } from "react-native";
-import { Icon, Button, Text, Overlay } from "react-native-elements";
+import { Icon, Button, Text, Overlay,Card,Image } from "react-native-elements";
 import firebase, { imageRef } from "react-native-firebase";
 import BeersList from "./SearchBeerBar";
 import { PermissionsAndroid } from "react-native";
@@ -24,7 +24,7 @@ export default class Main extends React.Component {
     showSearch: false,
     image: null,
     uploading: false,
-    googleResponse: null
+    googleResponse: null,
   };
 
   static navigationOptions = ({ navigation }) => ({
@@ -79,7 +79,6 @@ export default class Main extends React.Component {
 
       const { currentUser } = firebase.auth();
       const imageRef = firebase.storage().ref(`/photos/${currentUser.uid}`);
-      console.log(imageRef);
       fs.readFile(imgUri, "base64")
         .then(data => {
           return Blob.build(data, { type: `${mime};BASE64` });
@@ -95,20 +94,38 @@ export default class Main extends React.Component {
         })
         .catch(error => {
           reject(error);
+          this.setState({ visionError:true });
         });
     });
   }
 
+// timeout(ms, promise) {
+//   return new Promise(function(resolve, reject) {
+//     setTimeout(function() {
+//       reject(new Error("timeout"))
+//     }, ms)
+//     promise.then(resolve, reject)
+//   })
+// }
+
   submitToGoogle = () => {
     try {
-      // Launch Camera:
-      ImagePicker.launchCamera(options, res => {
-        this.setState({ resUri: res.uri });
-        console.log(res);
-        this.setState({ uploading: true });
 
-        this.uploadImage(res.path).then(fbres => {
-          console.log(fbres);
+      // Launch Camera:
+      ImagePicker.launchCamera({
+        quality:0.6,
+        title: "Select Avatar",
+      mediaType: "photo",
+      storageOptions: {
+        skipBackup: true,
+        path: "images"}}, result => {
+        if(result.error || result.didCancel){
+          return;
+        }
+        this.setState({ uploading: true ,visionError:false});
+
+        this.uploadImage(result.path).then(fbres => {
+
           body = JSON.stringify({
             requests: [
               {
@@ -121,7 +138,6 @@ export default class Main extends React.Component {
               }
             ]
           });
-          console.log(body);
 
           fetch(
             "https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCgArqIrc0V0D0iP1DrzdI4Yo_kUwTB3AM",
@@ -133,45 +149,46 @@ export default class Main extends React.Component {
               method: "POST",
               body: body
             }
-          )
-            .then(res => {
+          ).then(res => {
               // console.log(res.body)
               // this.props.navigation.navigate("BeersFound",{
               //   value:res.responses.logoAnnotations[0].description,
               //   criteria:'name'
               // } )
-              console.log(res);
-              try {
                 res.json().then(json => {
                   console.log(json);
-                  if (json.responses.length > 0) {
+                  this.setState({ uploading: false });
+                  if (json.responses.length > 0 && json.responses[0].logoAnnotations[0]) {
                     beerName = json.responses[0].logoAnnotations[0].description;
                     console.log(beerName);
                     this.props.navigation.navigate("BeersFound", {
                       value: beerName,
                       criteria: "vision"
                     });
+                    this.setState({ visionError:true });
+
+                  } 
+                  else{
+                    this.setState({ visionError:true });
+
                   }
-                  this.setState({ uploading: false });
-
-                });
-              } catch (e) {
-                console.log(e);
-                this.setState({ uploading: false });
-
-              }
+                }).catch(e=>{
+                  this.setState({ visionError:true });
+                })
             })
-            .catch(err => {console.log(err);       this.setState({ uploading: false });
+            .catch((err) => {
+              console.log(err); 
+              this.setState({ uploading: false ,visionError:true});
+
           });
         });
-
       });
 
       // imguri= this.uploadImage(this.state.resUri,'image/jpeg',response.fileName)
     } catch (error) {
       this.setState({ uploading: false });
     }
-  };
+  }
 
   updateSearchState = () => {
     this.setState({ showSearch: !this.state.showSearch });
@@ -179,20 +196,8 @@ export default class Main extends React.Component {
 
   render() {
     const { search, currentUser, showSearch } = this.state;
-    data = [
-      { value: "Wheat Beer", path: "../../images/wheatBeer.jpg" },
-      { value: "Pale lager", path: "../../images/paleLager.jpg" },
-      { value: "Dark lager", path: "../../images/darkLager.jpg" },
-      { value: "Stout", path: "../../images/stout.jpg" }
-    ];
-    options = {
-      title: "Select Avatar",
-      mediaType: "photo",
-      storageOptions: {
-        skipBackup: true,
-        path: "images"
-      }
-    };
+
+   
     return (
       <ScrollView style={{ flex: 1 }}>
         <Overlay
@@ -204,7 +209,7 @@ export default class Main extends React.Component {
           <Text>Uploading image</Text>
           <ActivityIndicator size="large" />
         </Overlay>
-        
+
         <View style={{ marginTop: 5 }}>
           <Button
             raised
@@ -217,42 +222,101 @@ export default class Main extends React.Component {
             title="Search Beer..."
             onPress={this.updateSearchState}
           />
-          {showSearch ? <BeersList navigation={this.props.navigation} /> : null}
+          {showSearch ? (
+            <BeersList navigation={this.props.navigation} />
+          ) : null}
         </View>
-        <View style={{ margin: 50 }}>
-          <Text h1>Browse Beers</Text>
-          <View>
-            <FlatList
-              data={[
-                { value: "Wheat Beer" },
-                { value: "Pale lager" },
-                { value: "Dark lager" },
-                { value: "Stout" }
-              ]}
-              numColumns={2}
-              renderItem={({ item }) => (
-                <View style={styles.item}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.props.navigation.navigate("BeersFound", {
-                        value: item.value,
-                        criteria: "type"
-                      })
-                    }
-                    style={{ color: "transparent", marginBottom: 20 }}
-                  >
-                    <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                      {item.value}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
+        <View style={{ margin: 50, textAlign:'center' }}>
+          <Text h1 style={{textAlign:'center'}}>Browse Beers</Text>
+          <View style={{flexDirection:'row', alignContent:'center'}}>
+            <Card  containerStyle={{padding: 0 , width:130, alignContent:'center'}}>
+              <TouchableOpacity  onPress={() =>
+                  this.props.navigation.navigate("BeersFound", {
+                    value: "Wheat Beer",
+                    criteria: "type"
+                  })
+                }>
+              <Image
+                style={{height:100,width:130}}
+                resizeMode="cover"
+                source={require('../../images/wheat-beer.jpg')}
+               
+              />
+              <Text style={{ fontSize: 20, fontWeight: "bold",marginBottom: 10 , textAlign:'center'}}>
+Wheat Beer
+              </Text>
+              </TouchableOpacity>
+             
+            </Card>
+            <Card  containerStyle={{padding: 0, width:130}}>
+              <TouchableOpacity  onPress={() =>
+                  this.props.navigation.navigate("BeersFound", {
+                    value: "Pale lager",
+                    criteria: "type"
+                  })
+                }>
+              <Image
+                style={{height:100,width:130}}
+                resizeMode="cover"
+                source={require('../../images/pale-lager.jpg')}
+               
+              />
+              <Text style={{ fontSize: 20, fontWeight: "bold",marginBottom: 10, textAlign:'center' }}>
+              Pale Lager
+              </Text>
+              </TouchableOpacity>
+              
+            </Card>
+          </View>
+          <View style={{flexDirection:'row'}}>
+            <Card  containerStyle={{padding: 0 , width:130}}>
+              <TouchableOpacity  onPress={() =>
+                  this.props.navigation.navigate("BeersFound", {
+                    value: "Stout",
+                    criteria: "type"
+                  })
+                }>
+              <Image
+                style={{height:100,width:130}}
+                resizeMode="cover"
+                source={require('../../images/stout.jpg')}
+               
+              />
+              <Text style={{ fontSize: 20, fontWeight: "bold",marginBottom: 10, textAlign:'center' }}>
+Stout
+              </Text>
+              </TouchableOpacity>
+             
+            </Card>
+            <Card  containerStyle={{padding: 0, width:130}}>
+              <TouchableOpacity  onPress={() =>
+                  this.props.navigation.navigate("BeersFound", {
+                    value: "Dark lager",
+                    criteria: "type"
+                  })
+                }>
+              <Image
+                style={{height:100,width:130}}
+                resizeMode="cover"
+                source={require('../../images/dark-lager.jpg')}
+               
+              />
+              <Text style={{ fontSize: 20, fontWeight: "bold"  , textAlign:'center'}}>
+              Dark Lager
+              </Text>
+              </TouchableOpacity>
+              
+            </Card>
           </View>
         </View>
         <View
-          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center"
+          }}
         >
+          {this.state.visionError && (<Text style={{color:'red',fontSize:20, textAlign:'center',bottom:5,paddingTop:2}}>No beers found</Text>)}
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={this.clickHandler}
@@ -279,7 +343,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   TouchableOpacityStyle: {
-    bottom: 1
+    bottom: 10
   },
 
   FloatingButtonStyle: {
