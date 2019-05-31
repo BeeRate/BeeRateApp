@@ -15,7 +15,7 @@ import firebase from "react-native-firebase";
 import algoliasearch from "algoliasearch";
 
 export default class Profile extends Component {
-  state = { beers: [], ratingBeers:[] ,editName:false,nickName:'',originName:''};
+  state = { beers: [], ratingBeers:[] ,editName:false,nickName:'',nickNameObjectId:'',originName:''};
   static navigationOptions = {
     title: "Profile",
     headerRight: (
@@ -57,9 +57,9 @@ export default class Profile extends Component {
     indexUsers.search({query:currentUser.uid}).then((hits)=>{
       if(hits.hits.length>0){
         console.log(hits)
-        this.setState({nickName:hits.hits[0].name,originName:hits.hits[0].name})
+        this.setState({nickName:hits.hits[0].name,originName:hits.hits[0].name,nickNameObjectId:hits.hits[0].objectID})
       }else{
-        this.setState({nickName:'Beer Lover',originName:hits.hits[0].name})
+        this.setState({nickName:'Beer Lover',originName:'Beer Lover'})
       }
     }).catch((e)=>console.log(e))
     this.didFocusListener = this.props.navigation.addListener(
@@ -102,11 +102,14 @@ export default class Profile extends Component {
   updateName=()=>{
     const { currentUser } = firebase.auth();
     indexUsers = this.client.initIndex("users");
-    indexUsers.search({query:currentUser}).then(hits=>{
+    indexUsers.search({query:currentUser.uid}).then(hits=>{
       obj={userId:currentUser.uid, name:this.state.nickName}
-      if(hits.hits.length>0){
-        indexUsers.add([obj]).then(a=>console.log(a))
+
+      console.log(hits)
+      if(hits.hits.length==0){
+        indexUsers.addObject(obj).then(a=>console.log(a))
       }else{
+        obj.objectID=hits.hits[0].objectID;
         indexUsers.partialUpdateObject(obj).then(a=>console.log(a))
       }
       this.setState({editName:false,originName:this.state.nickName})

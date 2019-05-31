@@ -226,10 +226,10 @@ export default class Main extends React.Component {
             <BeersList navigation={this.props.navigation} />
           ) : null}
         </View>
-        <View style={{ margin: 50, textAlign:'center' }}>
+        <View style={{ margin: 50, textAlign:'center',alignContent:'center' }}>
           <Text h1 style={{textAlign:'center'}}>Browse Beers</Text>
-          <View style={{flexDirection:'row', alignContent:'center'}}>
-            <Card  containerStyle={{padding: 0 , width:130, alignContent:'center'}}>
+          <View style={{flexDirection:'row', alignContent:'center', alignSelf:'center'}}>
+            <Card  containerStyle={{padding: 0 , width:130,}}>
               <TouchableOpacity  onPress={() =>
                   this.props.navigation.navigate("BeersFound", {
                     value: "Wheat Beer",
@@ -268,7 +268,7 @@ Wheat Beer
               
             </Card>
           </View>
-          <View style={{flexDirection:'row'}}>
+          <View style={{flexDirection:'row',alignSelf:'center'}}>
             <Card  containerStyle={{padding: 0 , width:130}}>
               <TouchableOpacity  onPress={() =>
                   this.props.navigation.navigate("BeersFound", {
