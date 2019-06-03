@@ -23,7 +23,7 @@ export default class Profile extends Component {
         <Icon
           name="exit-to-app"
           onPress={() => {
-            LoginManager.logOut;
+            LoginManager.logOut();
             firebase
               .auth()
               .signOut()
