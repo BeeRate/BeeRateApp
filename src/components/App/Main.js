@@ -48,11 +48,19 @@ export default class Main extends React.Component {
     headerVisible: true
   });
 
+  componentWillUnmount() {
+    this.didFocusListener.remove();
+  }
+
   //On launching component
   componentDidMount() {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
     const { currentUser } = firebase.auth();
-    this.setState({ currentUser });
+    this.didFocusListener = this.props.navigation.addListener(
+      "didFocus",
+      () => {
+        this.setState({ currentUser,showSearch:false });
+      });
     console.disableYellowBox = true;
   }
 

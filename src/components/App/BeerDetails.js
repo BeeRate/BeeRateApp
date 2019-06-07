@@ -325,11 +325,11 @@ export default class BeerDetails extends Component {
           </Text>
 
           <View style={{ margin: 2 }}>
-            <Text h5>Avarage Price: {this.state.beer.price}$</Text>
-            <Text h5>Type: {this.state.beer.type}</Text>
-            <Text h5>Alcohol Precentage: {this.state.beer.alcohol}</Text>
-            <Text h5>Origin Country: {this.state.beer.country}</Text>
-            <Text h5>Manufacturer: {this.state.beer.manufacturer}</Text>
+            <Text style={{fontSize:24}}>Avarage Price: {this.state.beer.price}$</Text>
+            <Text style={{fontSize:24}}>Type: {this.state.beer.type}</Text>
+            <Text style={{fontSize:24}}>Alcohol Precentage: {this.state.beer.alcohol}</Text>
+            <Text style={{fontSize:24}}>Origin Country: {this.state.beer.country}</Text>
+            <Text style={{fontSize:24}}>Manufacturer: {this.state.beer.manufacturer}</Text>
           </View>
         </View>
       </ScrollView>

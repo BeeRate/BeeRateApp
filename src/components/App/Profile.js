@@ -20,8 +20,10 @@ export default class Profile extends Component {
     title: "Profile",
     headerRight: (
       <View style={{ margin: 15 }}>
+        <Text style={{color:"white"}}>Logout</Text>
         <Icon
           name="exit-to-app"
+          color="white"
           onPress={() => {
             LoginManager.logOut();
             firebase
@@ -128,7 +130,7 @@ export default class Profile extends Component {
               uri:
                 "https://www.personalbrandingblog.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640-300x300.png"
             }}
-            title="dor wiser"
+            title="Profile"
           />
             <View style={{flexDirection:'row'}}>
             {!this.state.editName && (<Text h3>{this.state.originName}</Text>)}

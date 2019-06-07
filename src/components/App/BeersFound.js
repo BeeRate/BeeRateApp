@@ -23,6 +23,8 @@ export default class BeersFound extends React.Component {
     },
     headerVisible: true,
   });
+
+  
   state = {beer:{},liked:false ,ratingDisabled:false}
   client = algoliasearch('8V33FGVG49', '7363107e25d7595aa932b9885bb11ef8');
   index = this.client.initIndex('beers');
@@ -32,7 +34,7 @@ export default class BeersFound extends React.Component {
     criteria = this.props.navigation.getParam('criteria','');
 
     componentDidMount(){
-        console.log(this.beerType)
+        this.setState({loading:true})
        // if(this.criteria=='type'){
          if(this.criteria==='vision'){
           rmWords='allOptional'
@@ -43,27 +45,18 @@ export default class BeersFound extends React.Component {
           this.index.search( {query:this.beerType,removeWordsIfNoResults:rmWords}).then( (hits)=>{
             console.log(hits)
             this.setState({beers:[...hits.hits]});
+           }).finally(e=>{
+            this.setState({loading:false})
            })
-        // }
-        // else if(this.criteria=='name'){
-        //     firebase.firestore().collection('beers').where('name', '>=', this.beerType).where('name', '<=', this.beerType).get().then((querySnapshot)=> {
-        //         temp=[]
-        //         querySnapshot.forEach(function(doc) {
-        //             // doc.data() is never undefined for query doc snapshots
-        //             temp.push(doc.id,...doc.data())
-        //         });
-        //         this.setState({beers:temp})
-    
-        //     }).catch((error)=>alert(error)).then();
-        // }
-         
     }
 
   render() {
     return (
       <ScrollView>
+        
         {
-          this.state.beers.length>0 ?
+          this.state.loading? (<Text>Searching...</Text>):
+            this.state.beers.length>0 ?
             this.state.beers.map((b, i) => (
             <ListItem
                 key={i}
@@ -81,7 +74,10 @@ export default class BeersFound extends React.Component {
             />
             )):
             (<Text>No results found</Text>)
+          
+         
         }
+        
       </ScrollView>
     )
   }
